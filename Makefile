@@ -41,5 +41,6 @@ export:: ocamlwc.ps
 clean::
 	rm -f ocamlwc ocamlwc.ml ocamlwc.tex
 	rm -f *~ *.cm[iox] *.o
-	rm -f *.log *.aux *.dvi
+	rm -f *.log *.aux *.dvi ocamlwc.ps
+
 
