@@ -15,7 +15,7 @@
 (* $Id$ *)
 
 (*s {\bf ocamlwc.} Counts the lines of code and comments in an ocaml source. 
-    It assumes that files are lexically well-formed. *)
+    It assumes the files to be lexically well-formed. *)
 
 (*i*){ 
 open Lexing
@@ -77,6 +77,7 @@ let rcs_keyword =
   "Author" | "Date" | "Header" | "Id" | "Name" | "Locker" | "Log" |
   "RCSfile" | "Revision" | "Source" | "State"
 let rcs = "\036" rcs_keyword [^ '$']* "\036"
+let stars = "(*" '*'* "*)"
 
 (*s Lexer. The lexer is a line-driven automaton, with eight main states. 
     The states are named according to the following rules: the last character
@@ -88,8 +89,7 @@ let rcs = "\036" rcs_keyword [^ '$']* "\036"
 rule s_no = parse
   | "(*"   { comment_depth := 1; s_ni lexbuf }
   | '"'    { let n = string lexbuf in clines := !clines +n; s_co lexbuf }
-  | space+ { s_no lexbuf }
-  | '\n'   { s_no lexbuf }
+  | space+ | stars | '\n' { s_no lexbuf }
   | character | _ { s_co lexbuf }
   | eof    { () }
 
@@ -97,7 +97,7 @@ and s_co = parse
   | "(*"   { comment_depth := 1; s_ci lexbuf }
   | '"'    { let n = string lexbuf in clines := !clines +n; s_co lexbuf }
   | '\n'   { incr clines; s_no lexbuf }
-  | character | _ { s_co lexbuf }
+  | stars | character | _ { s_co lexbuf }
   | eof    { incr clines }
 
 and s_do = parse
@@ -129,8 +129,7 @@ and s_ci = parse
 	     if !comment_depth > 0 then s_ci lexbuf else s_co lexbuf }
   | '\n'   { incr clines; s_ni lexbuf }
   | '"'    { let n = string lexbuf in dlines := !dlines + n; s_cdi lexbuf }
-  | space+ { s_ci lexbuf }
-  | rcs    { s_ci lexbuf }
+  | space+ | rcs { s_ci lexbuf }
   | character | _ { s_cdi lexbuf }
   | eof    { incr clines } 
 
@@ -140,8 +139,7 @@ and s_ni = parse
 	     if !comment_depth > 0 then s_ni lexbuf else s_no lexbuf }
   | '\n'   { s_ni lexbuf }
   | '"'    { let n = string lexbuf in dlines := !dlines + n; s_di lexbuf }
-  | space+ { s_ni lexbuf }
-  | rcs    { s_ni lexbuf }
+  | space+ | rcs { s_ni lexbuf }
   | character | _ { s_di lexbuf }
   | eof    { () } 
 
