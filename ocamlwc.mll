@@ -12,12 +12,13 @@
  * See the GNU General Public License version 2 for more details
  * (enclosed in the file GPL). *)
 
-(* $Id$ *)
+(*i $Id$ i*)
 
 (*s {\bf ocamlwc.} Counts the lines of code and comments in an ocaml source. 
     It assumes the files to be lexically well-formed. *)
 
 (*i*){ 
+open Printf
 open Lexing
 (*i*)
 
@@ -197,11 +198,17 @@ let process_channel ch =
   s_no lb
 
 let process_file f =
-  let ch = open_in f in
-  process_channel ch;
-  close_in ch;
-  print_file (Some f);
-  update_totals ()
+  try
+    let ch = open_in f in
+    process_channel ch;
+    close_in ch;
+    print_file (Some f);
+    update_totals ()
+  with
+    | Sys_error "Is a directory" -> 
+	eprintf "ocamlwc: %s: Is a directory\n" f; flush stdout; flush stderr
+    | Sys_error s -> 
+	eprintf "ocamlwc: %s\n" s; flush stdout; flush stderr
 
 (*s Parsing of the command line. *)
 

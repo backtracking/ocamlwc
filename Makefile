@@ -11,7 +11,7 @@ ocamlwc: ocamlwc.ml
 doc: ocamlwc.dvi
 
 ocamlwc.dvi: ocamlwc.ml
-	ocamlweb -s --no-index -o ocamlwc.tex --impl ocamlwc.mll
+	ocamlweb -s --no-index -o ocamlwc.tex ocamlwc.mll
 	latex ocamlwc
 
 ocamlwc.ps: ocamlwc.dvi
