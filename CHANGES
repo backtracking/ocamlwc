@@ -1,4 +1,6 @@
 
+ o skip files with suffix ~ (Emacs backups), unless option -a
+
 Version 0.3, 5/9/2003
 ---------------------
  o fixed count on DOS files

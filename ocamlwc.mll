@@ -206,6 +206,8 @@ let generated_file f =
   (test ".ml" ".mll") || (test ".mli" ".mly") || 
   (test ".ml" ".mly") || (test ".ml" ".ml4")
 
+let file_to_skip f = Filename.check_suffix f "~" || generated_file f
+
 (*s Processing files and channels. *)
 
 let process_channel ch =
@@ -215,7 +217,7 @@ let process_channel ch =
   s_no lb
 
 let process_file f =
-  if (not !all_files) && (generated_file f) then begin
+  if (not !all_files) && (file_to_skip f) then begin
     flush stdout; eprintf "        skipped %s\n" f; flush stderr
   end else
     try
