@@ -1,5 +1,21 @@
+(* ocamlwc - counts the lines of code and comments in ocaml sources
+ * Copyright (C) 2000 Jean-Christophe Filliâtre
+ * 
+ * This software is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License version 2, as published by the Free Software Foundation.
+ * 
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * See the GNU General Public License version 2 for more details
+ * (enclosed in the file GPL). *)
 
-(*s {\bf ocamlwc.} Counts the lines of code in an ocaml source. *)
+(* $Id$ *)
+
+(*s {\bf ocamlwc.} Counts the lines of code and comments in an ocaml source. 
+    It assumes that files are lexically well-formed. *)
 
 (*i*){ 
 open Lexing
@@ -13,12 +29,11 @@ let skip_header = ref true
 let all_files = ref false
 
 (*s Counters. [clines] counts the number of code lines of the current
-    file, and [dlines] the number of comment lines. [slines] is used to
-    count the number of lines of the current string. *)
+    file, and [dlines] the number of comment lines. [tclines] and [tdlines]
+    are the corresponding totals. *)
 
 let clines = ref 0
 let dlines = ref 0
-let slines = ref 0
 
 let tclines = ref 0
 let tdlines = ref 0
@@ -26,7 +41,7 @@ let tdlines = ref 0
 let comment_depth = ref 0
 
 let reset_counters () = 
-  clines := 0; dlines := 0; slines := 0; comment_depth := 0
+  clines := 0; dlines := 0; comment_depth := 0
 
 let update_totals () =
   tclines := !tclines + !clines; tdlines := !tdlines + !dlines
@@ -50,14 +65,25 @@ let print_totals () = print_line !tclines !tdlines (Some "total")
 
 (*i*)}(*i*)
 
-(*s Shortcuts for regular expressions. *)
+(*s Shortcuts for regular expressions. The [rcs] regular expression
+    is used to skip the CVS infos possibly contained in some comments, 
+    in order not to consider it as documentation. *)
 
 let space = [' ' '\t']
 let character =
   "'" ([^ '\\' '\''] |
        '\\' (['\\' '\'' 'n' 't' 'b' 'r'] | ['0'-'9'] ['0'-'9'] ['0'-'9'])) "'"
+let rcs_keyword =
+  "Author" | "Date" | "Header" | "Id" | "Name" | "Locker" | "Log" |
+  "RCSfile" | "Revision" | "Source" | "State"
+let rcs = "\036" rcs_keyword [^ '$']* "\036"
 
-(*s Lexer. The lexer is a line-driven automaton, with seven main states. *)
+(*s Lexer. The lexer is a line-driven automaton, with eight main states. 
+    The states are named according to the following rules: the last character
+    is either $i$ or $o$ and tells wether we are inside ($i$) or outside
+    ($o$) a comment; the previous characters indicate what has been seen
+    so far on the current line: nothing ($n$), some code ($c$) and/or
+    some documentation ($d$). *)
 
 rule s_no = parse
   | "(*"   { comment_depth := 1; s_ni lexbuf }
@@ -102,8 +128,9 @@ and s_ci = parse
   | "*)"   { decr comment_depth; 
 	     if !comment_depth > 0 then s_ci lexbuf else s_co lexbuf }
   | '\n'   { incr clines; s_ni lexbuf }
-  | '"'    { let n = string lexbuf in dlines := !dlines + n; s_ci lexbuf }
+  | '"'    { let n = string lexbuf in dlines := !dlines + n; s_cdi lexbuf }
   | space+ { s_ci lexbuf }
+  | rcs    { s_ci lexbuf }
   | character | _ { s_cdi lexbuf }
   | eof    { incr clines } 
 
@@ -114,6 +141,7 @@ and s_ni = parse
   | '\n'   { s_ni lexbuf }
   | '"'    { let n = string lexbuf in dlines := !dlines + n; s_di lexbuf }
   | space+ { s_ni lexbuf }
+  | rcs    { s_ni lexbuf }
   | character | _ { s_di lexbuf }
   | eof    { () } 
 
@@ -126,13 +154,22 @@ and s_di = parse
   | character | _ { s_di lexbuf }
   | eof    { incr dlines } 
 
-and string = parse
-  | '"'  { let n = !slines in slines := 0; n }
-  | '\\' ('\\' | 'n') { string lexbuf }
-  | '\n' { incr slines; string lexbuf }
-  | _    { string lexbuf }
-  | eof  { let n = !slines in slines := 0; n }
+(*s The entry [string] reads a string until its end and returns the number
+    of newlines it contains. *)
 
+and string = parse
+  | '"'  { 0 }
+  | '\\' ('\\' | 'n' | '"') { string lexbuf }
+  | '\n' { succ (string lexbuf) }
+  | _    { string lexbuf }
+  | eof  { 0 }
+
+(*s The following entry [read_header] is used to skip the possible header at
+    the beggining of files (unless option \texttt{-e} is specified).
+    It stops whenever it encounters an empty line or any character outside
+    a comment. In this last case, it correctly resets the lexer position
+    on that character (decreasing [lex_curr_pos] by 1). *)
+ 
 and read_header = parse
   | "(*"   { skip_header_comment lexbuf; skip_until_nl lexbuf; 
 	     read_header lexbuf }
