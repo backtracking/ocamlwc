@@ -2,6 +2,5 @@
 ocamlwc is a program to count the number of lines of code and documentation
 in ocaml sources. It is freely distributed under GPL.
 
-Compile with "make" and install with "make install".
-
-(Default installation is in /usr/bin; edit the Makefile to change this value)
+Configure with "./configure", compile with "make" 
+and install with "make install".
