@@ -71,7 +71,7 @@ let print_totals () = print_line !tclines !tdlines (Some "total")
     is used to skip the CVS infos possibly contained in some comments, 
     in order not to consider it as documentation. *)
 
-let space = [' ' '\t']
+let space = [' ' '\t' '\r']
 let character =
   "'" ([^ '\\' '\''] |
        '\\' (['\\' '\'' 'n' 't' 'b' 'r'] | ['0'-'9'] ['0'-'9'] ['0'-'9'])) "'"
