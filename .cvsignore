@@ -6,3 +6,4 @@ config.cache
 config.status
 Makefile
 export
+ocamlwc.static

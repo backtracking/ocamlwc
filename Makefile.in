@@ -6,7 +6,10 @@ BINDIR = $(PREFIX)/bin
 all: ocamlwc
 
 ocamlwc: ocamlwc.ml
-	@OCAMLOPT@ -o ocamlwc ocamlwc.ml
+	@OCAMLOPT@ -o $@ $^
+
+ocamlwc.static: ocamlwc.ml
+	@OCAMLOPT@ -cclib -static -o $@ $^
 
 doc: ocamlwc.dvi
 
@@ -17,8 +20,8 @@ ocamlwc.dvi: ocamlwc.mll
 ocamlwc.ps: ocamlwc.dvi
 	dvips ocamlwc.dvi -o ocamlwc.ps
 
-local:: ocamlwc
-	cp ocamlwc $$HOME/bin/$$OSTYPE
+local:: ocamlwc.static
+	cp ocamlwc.static $$HOME/bin/$$OSTYPE/ocamlwc
 
 install:: ocamlwc
 	cp ocamlwc $(BINDIR)
