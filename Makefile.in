@@ -30,7 +30,7 @@ ocamlwc.ml: ocamlwc.mll
 	@OCAMLLEX@ ocamlwc.mll
 
 FTP=$$HOME/WWW/ftp/ocaml/misc
-VERSION=0.2
+VERSION=0.3
 NAME=ocamlwc-$(VERSION)
 
 export:: ocamlwc.ps
