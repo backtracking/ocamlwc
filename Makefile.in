@@ -1,12 +1,12 @@
 
 # where to install
-
-BINDIR = /usr/bin
+PREFIX = @prefix@
+BINDIR = $(PREFIX)/bin
 
 all: ocamlwc
 
 ocamlwc: ocamlwc.ml
-	ocamlopt -o ocamlwc ocamlwc.ml
+	@OCAMLOPT@ -o ocamlwc ocamlwc.ml
 
 doc: ocamlwc.dvi
 
@@ -24,10 +24,10 @@ install:: ocamlwc
 	cp ocamlwc $(BINDIR)
 
 ocamlwc.ml: ocamlwc.mll
-	ocamllex ocamlwc.mll
+	@OCAMLLEX@ ocamlwc.mll
 
 FTP=$$HOME/WWW/ftp/ocaml/misc
-VERSION=0.1
+VERSION=0.2
 NAME=ocamlwc-$(VERSION)
 
 export:: ocamlwc.ps

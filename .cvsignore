@@ -1,3 +1,6 @@
 ocamlwc
 ocamlwc.tex
 ocamlwc.ml
+ocamlwc.ps
+config.cache
+config.status

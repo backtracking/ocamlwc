@@ -1,4 +1,8 @@
 
+Version 0.2, 9/3/2001
+---------------------
+
+ o skip generated files (turned off with option -a)
  o do not count anymore the comments of the shape (****************)
 
 Version 0.1, 12/6/2000

@@ -20,6 +20,7 @@
 (*i*){ 
 open Printf
 open Lexing
+open Filename
 (*i*)
 
 (*s Command-line options. *)
@@ -197,18 +198,31 @@ let process_channel ch =
   if !skip_header then read_header lb;
   s_no lb
 
+let given_files = Hashtbl.create 97
+
+let generated_file f =
+  let test actual exists =
+    (check_suffix f actual) && 
+    (Hashtbl.mem given_files ((chop_suffix f actual) ^ exists))
+  in
+  (test ".ml" ".mll") || (test ".mli" ".mly") || 
+  (test ".ml" ".mly") || (test ".ml" ".ml4")
+
 let process_file f =
-  try
-    let ch = open_in f in
-    process_channel ch;
-    close_in ch;
-    print_file (Some f);
-    update_totals ()
-  with
-    | Sys_error "Is a directory" -> 
-	eprintf "ocamlwc: %s: Is a directory\n" f; flush stdout; flush stderr
-    | Sys_error s -> 
-	eprintf "ocamlwc: %s\n" s; flush stdout; flush stderr
+  if (not !all_files) && (generated_file f) then begin
+    flush stdout; eprintf "        skipped %s\n" f; flush stderr
+  end else
+    try
+      let ch = open_in f in
+      process_channel ch;
+      close_in ch;
+      print_file (Some f);
+      update_totals ()
+    with
+      | Sys_error "Is a directory" -> 
+	  flush stdout; eprintf "ocamlwc: %s: Is a directory\n" f; flush stderr
+      | Sys_error s -> 
+	  flush stdout; eprintf "ocamlwc: %s\n" s; flush stderr
 
 (*s Parsing of the command line. *)
 
@@ -234,6 +248,7 @@ let rec parse = function
 
 let main () =
   let files = parse (List.tl (Array.to_list Sys.argv)) in
+  List.iter (fun f -> Hashtbl.add given_files f ()) files;
   match files with
     | [] -> process_channel stdin; print_file None
     | [f] -> process_file f
