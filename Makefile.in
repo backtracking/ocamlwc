@@ -10,9 +10,9 @@ ocamlwc: ocamlwc.ml
 
 doc: ocamlwc.dvi
 
-ocamlwc.dvi: ocamlwc.ml
+ocamlwc.dvi: ocamlwc.mll
 	ocamlweb -s --no-index -o ocamlwc.tex ocamlwc.mll
-	latex ocamlwc
+	latex ocamlwc && latex ocamlwc
 
 ocamlwc.ps: ocamlwc.dvi
 	dvips ocamlwc.dvi -o ocamlwc.ps

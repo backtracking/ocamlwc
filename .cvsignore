@@ -5,3 +5,4 @@ ocamlwc.ps
 config.cache
 config.status
 Makefile
+export
