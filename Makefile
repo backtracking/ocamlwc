@@ -16,4 +16,6 @@ ocamlwc.ml: ocamlwc.mll
 
 clean::
 	rm -f ocamlwc ocamlwc.ml ocamlwc.tex
-	rm -f *~ *.cm[io] *.o
+	rm -f *~ *.cm[iox] *.o
+	rm -f *.log *.aux *.dvi
+
