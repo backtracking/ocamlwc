@@ -3,10 +3,12 @@
 
 BINDIR = /usr/bin
 
-all: ocamlwc ocamlwc.dvi
+all: ocamlwc
 
 ocamlwc: ocamlwc.ml
 	ocamlopt -o ocamlwc ocamlwc.ml
+
+doc: ocamlwc.dvi
 
 ocamlwc.dvi: ocamlwc.ml
 	ocamlweb -s --no-index -o ocamlwc.tex --impl ocamlwc.mll
