@@ -1,0 +1,17 @@
+
+ 1.
+        code (* commentaire *)
+
+    compte' comme une ligne de commentaire
+    mais devrait etre une ligne de code, au moins avec l'option -c
+
+ 2. 
+
+      (* commentaire *) code
+
+ 3. Quand on est dans un chaine il faut compter les lignes !
+    (=> code_string / comment_string)
+
+ 4. characteres, sequences d'echappement
+
+   CF LEXER OCAML !!!
