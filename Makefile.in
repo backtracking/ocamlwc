@@ -1,7 +1,9 @@
 
 # where to install
-PREFIX = @prefix@
-BINDIR = $(PREFIX)/bin
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+BINDIR = @bindir@
+MANDIR=@mandir@
 
 all: ocamlwc
 
@@ -25,6 +27,8 @@ local:: ocamlwc.static
 
 install:: ocamlwc
 	cp ocamlwc $(BINDIR)
+	mkdir -p $(MANDIR)/man1
+	cp -f ocamlwc.1 $(MANDIR)/man1
 
 ocamlwc.ml: ocamlwc.mll
 	@OCAMLLEX@ ocamlwc.mll
