@@ -41,7 +41,7 @@ export:: ocamlwc.ps
 	cp GPL README ocamlwc.mll $(FTP)
 	gzip --best -c ocamlwc.ps > $(FTP)/ocamlwc.ps.gz
 	mkdir -p export/$(NAME)
-	cp GPL README configure Makefile.in ocamlwc.mll export/$(NAME)
+	cp GPL README configure Makefile.in ocamlwc.mll ocamlwc.1 export/$(NAME)
 	cd export; tar zcf $(NAME).tar.gz $(NAME)
 	cd export; cp $(NAME).tar.gz $(FTP)
 
