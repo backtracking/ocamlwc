@@ -1,8 +1,10 @@
 opam-version: "2.0"
 maintainer: "Jean-Christophe.Filliatre@lri.fr"
 authors: "Jean-Christophe Filliâtre"
-synopsis: "Count lines in OCaml code"
-description: ""
+synopsis: "Count lines in OCaml source code"
+description: "Skip blank lines, comments, and generated files.
+Count and report the number of lines of comment separately (but skip
+comments at the very beginning of the files)."
 license: "GPL-2.1"
 homepage: "https://github.com/backtracking/ocamlwc"
 bug-reports: "https://github.com/backtracking/ocamlwc/issues"
