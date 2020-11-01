@@ -1,0 +1,17 @@
+opam-version: "2.0"
+maintainer: "Jean-Christophe.Filliatre@lri.fr"
+authors: "Jean-Christophe Filliâtre"
+synopsis: "Count lines in OCaml code"
+description: ""
+license: "GPL-2.1"
+homepage: "https://github.com/backtracking/ocamlwc"
+bug-reports: "https://github.com/backtracking/ocamlwc/issues"
+depends: [
+  "ocaml"
+  "dune" {>= "2.0.0"}
+]
+build: [
+  ["dune" "subst"] {pinned}
+  ["dune" "build" "-p" name "-j" jobs]
+]
+dev-repo: "git+https://github.com/backtracking/ocamlwc.git"

@@ -1,23 +1,23 @@
 (* ocamlwc - counts the lines of code and comments in ocaml sources
  * Copyright (C) 2000 Jean-Christophe Filliâtre
- * 
+ *
  * This software is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * See the GNU General Public License version 2 for more details
  * (enclosed in the file GPL). *)
 
 (*i $Id$ i*)
 
-(*s {\bf ocamlwc.} Counts the lines of code and comments in an ocaml source. 
+(*s {\bf ocamlwc.} Counts the lines of code and comments in an ocaml source.
     It assumes the files to be lexically well-formed. *)
 
-(*i*){ 
+(*i*){
 open Printf
 open Lexing
 open Filename
@@ -42,7 +42,7 @@ let tdlines = ref 0
 
 let comment_depth = ref 0
 
-let reset_counters () = 
+let reset_counters () =
   clines := 0; dlines := 0; comment_depth := 0
 
 let update_totals () =
@@ -68,7 +68,7 @@ let print_totals () = print_line !tclines !tdlines (Some "total")
 (*i*)}(*i*)
 
 (*s Shortcuts for regular expressions. The [rcs] regular expression
-    is used to skip the CVS infos possibly contained in some comments, 
+    is used to skip the CVS infos possibly contained in some comments,
     in order not to consider it as documentation. *)
 
 let space = [' ' '\t' '\r']
@@ -81,7 +81,7 @@ let rcs_keyword =
 let rcs = "\036" rcs_keyword [^ '$']* "\036"
 let stars = "(*" '*'* "*)"
 
-(*s Lexer. The lexer is a line-driven automaton, with eight main states. 
+(*s Lexer. The lexer is a line-driven automaton, with eight main states.
     The states are named according to the following rules: the last character
     is either $i$ or $o$ and tells wether we are inside ($i$) or outside
     ($o$) a comment; the previous characters indicate what has been seen
@@ -118,41 +118,41 @@ and s_cdo = parse
 
 and s_cdi = parse
   | "(*"   { incr comment_depth; s_cdi lexbuf }
-  | "*)"   { decr comment_depth; 
+  | "*)"   { decr comment_depth;
 	     if !comment_depth > 0 then s_cdi lexbuf else s_cdo lexbuf }
   | '\n'   { incr clines; incr dlines; s_ni lexbuf }
   | '"'    { let n = string lexbuf in dlines := !dlines + n; s_cdi lexbuf }
   | character | _ { s_cdi lexbuf }
-  | eof    { incr clines; incr dlines } 
+  | eof    { incr clines; incr dlines }
 
 and s_ci = parse
   | "(*"   { incr comment_depth; s_ci lexbuf }
-  | "*)"   { decr comment_depth; 
+  | "*)"   { decr comment_depth;
 	     if !comment_depth > 0 then s_ci lexbuf else s_co lexbuf }
   | '\n'   { incr clines; s_ni lexbuf }
   | '"'    { let n = string lexbuf in dlines := !dlines + n; s_cdi lexbuf }
   | space+ | rcs { s_ci lexbuf }
   | character | _ { s_cdi lexbuf }
-  | eof    { incr clines } 
+  | eof    { incr clines }
 
 and s_ni = parse
   | "(*"   { incr comment_depth; s_ni lexbuf }
-  | "*)"   { decr comment_depth; 
+  | "*)"   { decr comment_depth;
 	     if !comment_depth > 0 then s_ni lexbuf else s_no lexbuf }
   | '\n'   { s_ni lexbuf }
   | '"'    { let n = string lexbuf in dlines := !dlines + n; s_di lexbuf }
   | space+ | rcs { s_ni lexbuf }
   | character | _ { s_di lexbuf }
-  | eof    { () } 
+  | eof    { () }
 
-and s_di = parse 
+and s_di = parse
   | "(*"   { incr comment_depth; s_di lexbuf }
-  | "*)"   { decr comment_depth; 
+  | "*)"   { decr comment_depth;
 	     if !comment_depth > 0 then s_di lexbuf else s_do lexbuf }
   | '\n'   { incr dlines; s_ni lexbuf }
   | '"'    { let n = string lexbuf in dlines := !dlines + n; s_di lexbuf }
   | character | _ { s_di lexbuf }
-  | eof    { incr dlines } 
+  | eof    { incr dlines }
 
 (*s The entry [string] reads a string until its end and returns the number
     of newlines it contains. *)
@@ -169,9 +169,9 @@ and string = parse
     It stops whenever it encounters an empty line or any character outside
     a comment. In this last case, it correctly resets the lexer position
     on that character (decreasing [lex_curr_pos] by 1). *)
- 
+
 and read_header = parse
-  | "(*"   { skip_header_comment lexbuf; skip_until_nl lexbuf; 
+  | "(*"   { skip_header_comment lexbuf; skip_until_nl lexbuf;
 	     read_header lexbuf }
   | "\n"   { () }
   | space+ { read_header lexbuf }
@@ -200,10 +200,10 @@ let given_files = Hashtbl.create 97
 
 let generated_file f =
   let test actual exists =
-    (check_suffix f actual) && 
+    (check_suffix f actual) &&
     (Hashtbl.mem given_files ((chop_suffix f actual) ^ exists))
   in
-  (test ".ml" ".mll") || (test ".mli" ".mly") || 
+  (test ".ml" ".mll") || (test ".mli" ".mly") ||
   (test ".ml" ".mly") || (test ".ml" ".ml4")
 
 let file_to_skip f = Filename.check_suffix f "~" || generated_file f
@@ -227,9 +227,9 @@ let process_file f =
       print_file (Some f);
       update_totals ()
     with
-      | Sys_error "Is a directory" -> 
+      | Sys_error "Is a directory" ->
 	  flush stdout; eprintf "ocamlwc: %s: Is a directory\n" f; flush stderr
-      | Sys_error s -> 
+      | Sys_error s ->
 	  flush stdout; eprintf "ocamlwc: %s\n" s; flush stderr
 
 (*s Parsing of the command line. *)
@@ -265,5 +265,3 @@ let main () =
 let _ = Printexc.catch main ()
 
 (*i*)}(*i*)
-
-

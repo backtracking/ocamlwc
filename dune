@@ -1,0 +1,7 @@
+(executable
+ (public_name ocamlwc)
+ (flags (:standard -w -52))
+ (modules ocamlwc))
+
+(ocamllex
+ (modules ocamlwc))
